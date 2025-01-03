@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Quiz</title>    
+</head>
+<body>
+    <h1>YouTube Video Quiz Generator</h1>
+    
+    <!-- User Login Form -->
+    <div>
+        <h3>Login</h3>
+        <label for="userId">User ID: </label>
+        <input type="text" id="userId" required><br><br>
+        
+        <label for="age">Age: </label>
+        <input type="number" id="age" required><br><br>
+        
+        <button onclick="login()">Login</button>
+    </div>
+    
+    <hr>
+    
+    <!-- Video URL and Quiz Generation Form -->
+    <div>
+        <h3>Generate Quiz</h3>
+        <label for="videoUrl">YouTube Video URL: </label>
+        <input type="text" id="videoUrl" required><br><br>
+        
+        <button onclick="generateQuiz()">Generate Quiz</button>
+        
+        <div id="quiz"></div>
+    </div>
+
+    <script>
+        // Function to handle user login
+        async function login() {
+            const userId = document.getElementById("userId").value;
+            const age = document.getElementById("age").value;
+
+            console.log("Login attempt with", userId, age);
+
+            const response = await fetch('http://localhost:5000/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ user_id: userId, age: age })
+            });
+
+            const data = await response.json();
+            console.log("Response Data:", data);
+
+            if (response.ok) {
+                alert(data.message);
+            } else {
+                alert(data.error);
+            }
+        }
+
+        // Function to generate quiz based on YouTube video
+        async function generateQuiz() {
+            const userId = document.getElementById("userId").value;
+            const videoUrl = document.getElementById("videoUrl").value;
+
+            console.log("Generate quiz for", userId, videoUrl);
+
+            const response = await fetch('http://localhost:5000/generate_quiz', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ user_id: userId, video_url: videoUrl })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                const quizContainer = document.getElementById("quiz");
+                quizContainer.innerHTML = '<h3>Generated Questions:</h3>';
+                data.quiz.forEach(question => {
+                    quizContainer.innerHTML += `<p>${question}</p>`;
+                });
+            } else {
+                alert(data.error);
+            }
+        }
+    </script>
+</body>
+</html>
